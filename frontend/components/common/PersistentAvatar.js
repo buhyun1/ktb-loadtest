@@ -16,7 +16,7 @@ const PersistentAvatar = forwardRef(({
   // getProfileImageUrl 함수 memoization
   const getProfileImageUrl = useCallback((imagePath) => {
     if (!imagePath) return null;
-    return imagePath.startsWith('http') ? 
+    return imagePath.startsWith('https://') ? 
       imagePath : 
       `${process.env.NEXT_PUBLIC_API_URL}${imagePath}`;
   }, []);

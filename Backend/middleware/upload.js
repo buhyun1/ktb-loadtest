@@ -142,7 +142,7 @@ const fileFilter = (req, file, cb) => {
 
 // multer 미들웨어 설정
 const uploadMiddleware = multer({
-  storage: storage,
+  storage: multer.memoryStorage(), // S3 업로드를 위해 memoryStorage로 변경
   limits: {
     fileSize: 50 * 1024 * 1024, // 전체 파일 크기 제한: 50MB
     files: 1 // 동시 업로드 파일 수 제한: 1개

@@ -13,7 +13,7 @@ const ProfileImageUpload = ({ currentImage, onImageChange }) => {
   // 프로필 이미지 URL 생성
   const getProfileImageUrl = (imagePath) => {
     if (!imagePath) return null;
-    return imagePath.startsWith('http') ? 
+    return imagePath.startsWith('https://') ? 
       imagePath : 
       `${process.env.NEXT_PUBLIC_API_URL}${imagePath}`;
   };
