@@ -1,6 +1,7 @@
 # 환경 변수 파일 무시
 .env
 .env.*     
+<<<<<<< HEAD
 
 # Node modules
 node_modules/
@@ -27,3 +28,5 @@ pnpm-debug.log*
 
 # Optional: VSCode settings
 .vscode/
+=======
+>>>>>>> fa7a3de894b8f565c5ee00792347247d99ee3812
