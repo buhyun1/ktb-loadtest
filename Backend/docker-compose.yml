@@ -46,7 +46,7 @@ services:
     restart: always
 
   backend-5004:
-    image: your-node-backend-image:latest
+    image: buhyun459/ktb-backend:latest
     container_name: backend-5004
     network_mode: host
     env_file:
