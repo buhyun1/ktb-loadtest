@@ -6,9 +6,9 @@ const express = require('express');
 const cors = require('cors');
 const http = require('http');
 const socketIO = require('socket.io');
-const { createAdapter } = require('socket.io-redis');
-const Redis = require('ioredis');
-const redisClient = require('./utils/redisClient');
+const { createAdapter } = require('@socket.io/redis-adapter');
+const { createClient } = require('redis');
+const redisClient = require('./utils/redisClient'); // 데이터 레이어용(ioredis)
 const path = require('path');
 const { router: roomsRouter, initializeSocket } = require('./routes/api/rooms');
 const routes = require('./routes');
@@ -118,18 +118,18 @@ const io = socketIO(server, {
 });
 
 // Pub/Sub 전용 단일 노드 Redis 클라이언트 (마스터 노드 중 하나)
-const pubClient = new Redis({
-  host: process.env.REDIS_PUBSUB_HOST || process.env.REDIS_MASTER1,
-  port: 6379,
+const pubClient = createClient({
+  url: `redis://:${process.env.REDIS_PASSWORD || ''}@${process.env.REDIS_PUBSUB_HOST || process.env.REDIS_MASTER1}:6379`
 });
 const subClient = pubClient.duplicate();
 
-io.adapter(createAdapter({ pubClient, subClient }));
-
-require('./sockets/chat')(io);
-
-// Socket.IO 객체 전달
-initializeSocket(io);
+(async () => {
+  await pubClient.connect();
+  await subClient.connect();
+  io.adapter(createAdapter(pubClient, subClient));
+  require('./sockets/chat')(io);
+  initializeSocket(io);
+})();
 
 // 404 에러 핸들러
 app.use((req, res) => {
@@ -158,4 +158,4 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('API Base URL:', `http://0.0.0.0:${PORT}/api`);
 });
 
-module.exports = { app, server };ㄴ
+module.exports = { app, server };

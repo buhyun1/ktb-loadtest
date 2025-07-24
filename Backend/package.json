@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@redis/client": "^1.6.0",
+    "@socket.io/redis-adapter": "^8.3.0",
     "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
     "bull": "^4.10.4",
