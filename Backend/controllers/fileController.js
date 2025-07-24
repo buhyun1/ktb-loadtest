@@ -7,6 +7,8 @@ const fs = require('fs');
 const { promisify } = require('util');
 const crypto = require('crypto');
 const { uploadDir } = require('../middleware/upload');
+const s3Service = require('../services/s3Service');
+const redisClient = require('../utils/redisClient');
 
 // fs 모듈의 콜백 기반 함수들을 Promise 기반으로 변환
 const fsPromises = {
@@ -92,7 +94,6 @@ const getFileFromRequest = async (req) => {
 // 파일 업로드 처리 함수
 exports.uploadFile = async (req, res) => {
   try {
-    // 파일 존재 여부 확인
     if (!req.file) {
       return res.status(400).json({
         success: false,
@@ -100,48 +101,29 @@ exports.uploadFile = async (req, res) => {
       });
     }
 
-    // 안전한 파일명 생성 및 파일 이동
+    // S3에 업로드
     const safeFilename = generateSafeFilename(req.file.originalname);
-    const currentPath = req.file.path;
-    const newPath = path.join(uploadDir, safeFilename);
+    const url = await s3Service.uploadFile(req.file.buffer, safeFilename, req.file.mimetype);
 
-    // DB에 파일 정보 저장
-    const file = new File({
-      filename: safeFilename,
+    // 메타데이터 Redis에 저장
+    const meta = {
+      fileName: safeFilename,
       originalname: req.file.originalname,
-      mimetype: req.file.mimetype,
+      url,
+      uploader: req.user.id,
+      uploadedAt: Date.now(),
       size: req.file.size,
-      user: req.user.id,
-      path: newPath
-    });
+      mimetype: req.file.mimetype
+    };
+    await redisClient.hSet(`file:${safeFilename}`, meta);
 
-    await file.save();
-    await fsPromises.rename(currentPath, newPath);
-
-    // 성공 응답
     res.status(200).json({
       success: true,
       message: '파일 업로드 성공',
-      file: {
-        _id: file._id,
-        filename: file.filename,
-        originalname: file.originalname,
-        mimetype: file.mimetype,
-        size: file.size,
-        uploadDate: file.uploadDate
-      }
+      file: meta
     });
-
   } catch (error) {
-    // 에러 발생 시 임시 파일 삭제
     console.error('File upload error:', error);
-    if (req.file?.path) {
-      try {
-        await fsPromises.unlink(req.file.path);
-      } catch (unlinkError) {
-        console.error('Failed to delete uploaded file:', unlinkError);
-      }
-    }
     res.status(500).json({
       success: false,
       message: '파일 업로드 중 오류가 발생했습니다.',
