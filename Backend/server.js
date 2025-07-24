@@ -117,11 +117,14 @@ const io = socketIO(server, {
   maxHttpBufferSize: 1e8 
 });
 
-// socket.io-redis 어댑터 적용 (ioredis 클러스터 사용)
-io.adapter(createAdapter({
-  pubClient: redisClient.cluster.duplicate(),
-  subClient: redisClient.cluster.duplicate(),
-}));
+// Pub/Sub 전용 단일 노드 Redis 클라이언트 (마스터 노드 중 하나)
+const pubClient = new Redis({
+  host: process.env.REDIS_PUBSUB_HOST || process.env.REDIS_MASTER1,
+  port: 6379,
+});
+const subClient = pubClient.duplicate();
+
+io.adapter(createAdapter({ pubClient, subClient }));
 
 require('./sockets/chat')(io);
 
@@ -155,4 +158,4 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log('API Base URL:', `http://0.0.0.0:${PORT}/api`);
 });
 
-module.exports = { app, server };
+module.exports = { app, server };ㄴ
