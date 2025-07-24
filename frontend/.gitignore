@@ -1,0 +1,46 @@
+# Node modules
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Production build
+/build
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env files (비공개 키/설정 포함)
+.env*
+!.env.example
+
+# OS / IDE / Editor 설정 파일
+.DS_Store
+*.swp
+.vscode/
+.idea/
+
+# npm/yarn/lock files 백업
+package-lock.json.*
+yarn.lock.*
+pnpm-lock.yaml.*
+
+# coverage reports
+coverage/
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Optional test coverage
+*.lcov
+
+# Typescript build output
+dist/
+*.tsbuildinfo
