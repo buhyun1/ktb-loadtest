@@ -23,35 +23,35 @@ services:
     command: ["node", "server.js"]
     restart: always
 
-  backend-5002:
-    image: buhyun459/ktb-backend:latest
-    container_name: backend-5002
-    network_mode: host
-    env_file:
-      - .env
-    environment:
-      - PORT=5002
-    command: ["node", "server.js"]
-    restart: always
+  # backend-5002:
+  #   image: buhyun459/ktb-backend:latest
+  #   container_name: backend-5002
+  #   network_mode: host
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     - PORT=5002
+  #   command: ["node", "server.js"]
+  #   restart: always
 
-  backend-5003:
-    image: buhyun459/ktb-backend:latest
-    container_name: backend-5003
-    network_mode: host
-    env_file:
-      - .env
-    environment:
-      - PORT=5003
-    command: ["node", "server.js"]
-    restart: always
+  # backend-5003:
+  #   image: buhyun459/ktb-backend:latest
+  #   container_name: backend-5003
+  #   network_mode: host
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     - PORT=5003
+  #   command: ["node", "server.js"]
+  #   restart: always
 
-  backend-5004:
-    image: buhyun459/ktb-backend:latest
-    container_name: backend-5004
-    network_mode: host
-    env_file:
-      - .env
-    environment:
-      - PORT=5004
-    command: ["node", "server.js"]
-    restart: always
+  # backend-5004:
+  #   image: buhyun459/ktb-backend:latest
+  #   container_name: backend-5004
+  #   network_mode: host
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     - PORT=5004
+  #   command: ["node", "server.js"]
+  #   restart: always

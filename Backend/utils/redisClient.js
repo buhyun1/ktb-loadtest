@@ -22,15 +22,15 @@ class RedisClient {
         {
           host: process.env.REDIS_MASTER3,
           port: 6379
+        },
+        {
+          host: process.env.REDIS_MASTER4,
+          port: 6379
+        },
+        {
+          host: process.env.REDIS_MASTER5,
+          port: 6379
         }
-        // {
-        //   host: process.env.REDIS_MASTER4,
-        //   port: 6379
-        // },
-        // {
-        //   host: process.env.REDIS_MASTER5,
-        //   port: 6379
-        // }
       ], {
         redisOptions: {
           connectTimeout: 10000,

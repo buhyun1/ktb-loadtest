@@ -6,6 +6,9 @@ const express = require('express');
 const cors = require('cors');
 const http = require('http');
 const socketIO = require('socket.io');
+const { createAdapter } = require('socket.io-redis');
+const Redis = require('ioredis');
+const redisClient = require('./utils/redisClient');
 const path = require('path');
 const { router: roomsRouter, initializeSocket } = require('./routes/api/rooms');
 const routes = require('./routes');
@@ -102,7 +105,6 @@ app.use('/api', routes);
 app.use('/api/v1/health', healthRouter);
 
 // Socket.IO 설정
-// const io = socketIO(server, { cors: corsOptions });
 const io = socketIO(server, {
   cors: corsOptions,
   pingTimeout: 120000,     // 60초
@@ -114,6 +116,13 @@ const io = socketIO(server, {
   reconnectionDelayMax: 10000,
   maxHttpBufferSize: 1e8 
 });
+
+// socket.io-redis 어댑터 적용 (ioredis 클러스터 사용)
+io.adapter(createAdapter({
+  pubClient: redisClient.cluster.duplicate(),
+  subClient: redisClient.cluster.duplicate(),
+}));
+
 require('./sockets/chat')(io);
 
 // Socket.IO 객체 전달
