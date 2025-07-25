@@ -32,20 +32,26 @@ export const useFileHandling = (socketRef, currentUser, router, handleSessionErr
         (progress) => setUploadProgress(progress)
       );
 
+      console.log('uploadResponse:', uploadResponse);
       if (!uploadResponse.success) {
         throw new Error(uploadResponse.message || '파일 업로드에 실패했습니다.');
       }
+      console.log('업로드 응답 file:', uploadResponse.data.file);
+
+
+      // 여기서 업로드 응답 file 객체를 콘솔에 출력!
+      console.log('업로드 응답 file:', uploadResponse.data.file);
 
       await socketRef.current.emit('chatMessage', {
         room: roomId,
         type: 'file',
         content: content,
         fileData: {
-          _id: uploadResponse.data.file._id,
-          filename: uploadResponse.data.file.filename,
+          filename: uploadResponse.file.fileName,
           originalname: uploadResponse.data.file.originalname,
           mimetype: uploadResponse.data.file.mimetype,
-          size: uploadResponse.data.file.size
+          size: uploadResponse.data.file.size,
+          url: uploadResponse.data.file.url
         }
       });
 

@@ -66,9 +66,10 @@ const getFileFromRequest = async (req) => {
     }
 
     // 파일과 연관된 메시지 조회
-    const message = await Message.findOne({ file: file._id });
+    const roomMessages = await redisDataLayer.getMessagesForRoom(roomId); 
+    const message = roomMessages.find(msg => msg.type === 'file' && msg.file === filename);
     if (!message) {
-      throw new Error('File message not found');
+      throw new Error('File message not found in Redis');
     }
 
     // 사용자의 채팅방 접근 권한 확인

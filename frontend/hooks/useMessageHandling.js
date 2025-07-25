@@ -124,11 +124,11 @@ export const useMessageHandling = (socketRef, currentUser, router, handleSession
          type: 'file',
          content: messageData.content || '',
          fileData: {
-           _id: uploadResponse.data.file._id,
-           filename: uploadResponse.data.file.filename,
+           filename: uploadResponse.file.fileName,
            originalname: uploadResponse.data.file.originalname,
            mimetype: uploadResponse.data.file.mimetype,
-           size: uploadResponse.data.file.size
+           size: uploadResponse.data.file.size,
+           url: uploadResponse.data.file.url
          }
        });
 

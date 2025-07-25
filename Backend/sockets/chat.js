@@ -56,14 +56,14 @@ module.exports = function (io) {
   
         // file 정보 로딩 (필요한 경우)
         if (msg.type === 'file' && msg.file) {
-          const file = await redisDataLayer.getFile(msg.file);
-          if (file) {
+          const fileMeta = await redisClient.hGetAll(`file:${msg.file}`);
+          if (fileMeta && Object.keys(fileMeta).length > 0) {
             msg.file = {
-              _id: file._id,
-              filename: file.filename,
-              originalname: file.originalname,
-              mimetype: file.mimetype,
-              size: file.size
+              filename: fileMeta.fileName,
+              originalname: fileMeta.originalname,
+              mimetype: fileMeta.mimetype,
+              size: fileMeta.size,
+              url: fileMeta.url
             };
           }
         }
@@ -417,18 +417,23 @@ module.exports = function (io) {
 
         switch (type) {
           case 'file':
-            if (!fileData || !fileData._id) {
+            if (!fileData || !fileData.filename) {
               throw new Error('파일 데이터가 올바르지 않습니다.');
             }
-            const file = await redisDataLayer.getFile(fileData._id);
-            if (!file || file.user !== socket.user.id) {
+     
+            // Redis에서 파일 메타데이터 조회
+            const fileMeta = await redisClient.hGetAll(`file:${fileData.filename}`);
+            if (!fileMeta || Object.keys(fileMeta).length === 0) {
+              throw new Error('파일 메타데이터를 찾을 수 없습니다.');
+            }
+            if (fileMeta.uploader !== socket.user.id) {
               throw new Error('파일을 찾을 수 없거나 접근 권한이 없습니다.');
             }
 
             messageId = await redisDataLayer.createMessage(room, {
               type: 'file',
               sender: socket.user.id,
-              fileId: file._id,
+              file: fileData.filename,
               content: finalContent || ''
             });
             break;
@@ -460,14 +465,14 @@ module.exports = function (io) {
 
         // file 정보 로딩 (file 메시지일 경우)
         if (msg.type === 'file' && msg.file) {
-          const f = await redisDataLayer.getFile(msg.file);
-          if (f) {
+          const fMeta = await redisClient.hGetAll(`file:${msg.file}`);
+          if (fMeta && Object.keys(fMeta).length > 0) {
             msg.file = {
-              _id: f._id,
-              filename: f.filename,
-              originalname: f.originalname,
-              mimetype: f.mimetype,
-              size: f.size
+              filename: fMeta.fileName,
+              originalname: fMeta.originalname,
+              mimetype: fMeta.mimetype,
+              size: fMeta.size,
+              url: fMeta.url
             };
           }
         }
