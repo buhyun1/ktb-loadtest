@@ -108,6 +108,7 @@ exports.uploadFile = async (req, res) => {
 
     // 메타데이터 Redis에 저장
     const meta = {
+      _id: safeFilename, // filename을 _id로 사용
       filename: safeFilename,
       originalname: req.file.originalname,
       url,

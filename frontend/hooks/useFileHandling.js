@@ -10,10 +10,13 @@ export const useFileHandling = (socketRef, currentUser, router, handleSessionErr
   const fileInputRef = useRef(null);
 
   const handleFileUpload = useCallback(async (file, content = '') => {
+    console.log('[handleFileUpload] 함수 진입', { file, content });
+
     if (!socketRef.current?.connected || !currentUser) {
       Toast.error('채팅 서버와 연결이 끊어졌습니다.');
       return;
     }
+    console.log('[handleFileUpload] 소켓 연결 및 유저 확인 통과');
 
     // router.query가 초기화되지 않았을 때 처리
     const roomId = router?.query?.room;
@@ -21,37 +24,43 @@ export const useFileHandling = (socketRef, currentUser, router, handleSessionErr
       Toast.error('채팅방 정보를 찾을 수 없습니다.');
       return;
     }
+    console.log('[handleFileUpload] roomId 확인 통과:', roomId);
 
     try {
       setUploading(true);
       setUploadError(null);
       setUploadProgress(0);
+      console.log('[handleFileUpload] try문 진입');
 
+      console.log('[handleFileUpload] 파일 업로드 시작');
       const uploadResponse = await fileService.uploadFile(
         file,
         (progress) => setUploadProgress(progress)
       );
+      console.log('[handleFileUpload] 파일 업로드 완료');
 
       console.log('uploadResponse:', uploadResponse);
+      console.log('uploadResponse.data:', uploadResponse.data);
+      console.log('uploadResponse.data.file:', uploadResponse.data?.file);
+
       if (!uploadResponse.success) {
         throw new Error(uploadResponse.message || '파일 업로드에 실패했습니다.');
       }
       console.log('업로드 응답 file:', uploadResponse.data.file);
 
-
-      // 여기서 업로드 응답 file 객체를 콘솔에 출력!
-      console.log('업로드 응답 file:', uploadResponse.data.file);
-
+      // S3 업로드 응답에서 받은 file 메타데이터만 사용
+      const fileMeta = uploadResponse.data.file;
       await socketRef.current.emit('chatMessage', {
         room: roomId,
         type: 'file',
         content: content,
         fileData: {
-          filename: uploadResponse.data.file.filename,
-          originalname: uploadResponse.data.file.originalname,
-          mimetype: uploadResponse.data.file.mimetype,
-          size: uploadResponse.data.file.size,
-          url: uploadResponse.data.file.url
+          _id: fileMeta._id,
+          filename: fileMeta.filename,
+          originalname: fileMeta.originalname,
+          mimetype: fileMeta.mimetype,
+          size: fileMeta.size,
+          url: fileMeta.url
         }
       });
 
@@ -60,8 +69,7 @@ export const useFileHandling = (socketRef, currentUser, router, handleSessionErr
       setUploadProgress(0);
 
     } catch (error) {
-      console.error('File upload error:', error);
-      
+      console.error('[handleFileUpload] 에러 발생:', error);
       if (error.message?.includes('세션') || 
           error.message?.includes('인증') || 
           error.message?.includes('토큰')) {

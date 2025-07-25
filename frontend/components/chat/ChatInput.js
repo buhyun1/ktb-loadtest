@@ -105,10 +105,23 @@ const ChatInput = forwardRef(({
           throw new Error('파일이 선택되지 않았습니다.');
         }
 
+        // S3 업로드 후 응답값으로 fileData 구성
+        const uploadResponse = await fileService.uploadFile(file.file);
+        if (!uploadResponse.success) {
+          throw new Error(uploadResponse.message || '파일 업로드에 실패했습니다.');
+        }
+        const fileMeta = uploadResponse.data.file;
         onSubmit({
           type: 'file',
           content: message.trim(),
-          fileData: file
+          fileData: {
+            _id: fileMeta._id,
+            filename: fileMeta.filename,
+            originalname: fileMeta.originalname,
+            mimetype: fileMeta.mimetype,
+            size: fileMeta.size,
+            url: fileMeta.url
+          }
         });
 
         setMessage('');
