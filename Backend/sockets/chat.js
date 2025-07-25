@@ -426,7 +426,7 @@ module.exports = function (io) {
             if (!fileMeta || Object.keys(fileMeta).length === 0) {
               throw new Error('파일 메타데이터를 찾을 수 없습니다.');
             }
-            if (fileMeta.uploader !== socket.user.id) {
+            if (fileMeta.userId !== socket.user.id) {
               throw new Error('파일을 찾을 수 없거나 접근 권한이 없습니다.');
             }
 

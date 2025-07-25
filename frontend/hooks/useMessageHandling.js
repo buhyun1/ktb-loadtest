@@ -106,37 +106,20 @@ export const useMessageHandling = (socketRef, currentUser, router, handleSession
      console.log('[Chat] Sending message:', messageData);
 
      if (messageData.type === 'file') {
-       setUploading(true);
-       setUploadError(null);
-       setUploadProgress(0);
-
-       const uploadResponse = await fileService.uploadFile(
-         messageData.fileData.file,
-         (progress) => setUploadProgress(progress)
-       );
-
-       if (!uploadResponse.success) {
-         throw new Error(uploadResponse.message || '파일 업로드에 실패했습니다.');
+       // 이미 업로드된 파일 데이터를 사용
+       if (!messageData.fileData) {
+         throw new Error('파일 데이터가 없습니다.');
        }
 
        socketRef.current.emit('chatMessage', {
          room: roomId,
          type: 'file',
          content: messageData.content || '',
-         fileData: {
-           _id: uploadResponse.data.file._id,
-           filename: uploadResponse.data.file.filename,
-           originalname: uploadResponse.data.file.originalname,
-           mimetype: uploadResponse.data.file.mimetype,
-           size: uploadResponse.data.file.size,
-           url: uploadResponse.data.file.url
-         }
+         fileData: messageData.fileData
        });
 
        setFilePreview(null);
        setMessage('');
-       setUploading(false);
-       setUploadProgress(0);
 
      } else if (messageData.content?.trim()) {
        socketRef.current.emit('chatMessage', {

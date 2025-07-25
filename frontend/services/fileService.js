@@ -160,7 +160,7 @@ class FileService {
           ...response.data,
           file: {
             ...fileData,
-            url: this.getFileUrl(fileData.filename, true)
+            url: fileData.url // 백엔드에서 받은 S3 URL을 그대로 사용
           }
         }
       };
