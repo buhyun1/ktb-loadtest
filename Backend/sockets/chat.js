@@ -59,7 +59,7 @@ module.exports = function (io) {
           const fileMeta = await redisClient.hGetAll(`file:${msg.file}`);
           if (fileMeta && Object.keys(fileMeta).length > 0) {
             msg.file = {
-              filename: fileMeta.fileName,
+              filename: fileMeta.filename,
               originalname: fileMeta.originalname,
               mimetype: fileMeta.mimetype,
               size: fileMeta.size,
@@ -468,7 +468,7 @@ module.exports = function (io) {
           const fMeta = await redisClient.hGetAll(`file:${msg.file}`);
           if (fMeta && Object.keys(fMeta).length > 0) {
             msg.file = {
-              filename: fMeta.fileName,
+              filename: fMeta.filename,
               originalname: fMeta.originalname,
               mimetype: fMeta.mimetype,
               size: fMeta.size,
